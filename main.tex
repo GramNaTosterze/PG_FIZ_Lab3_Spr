@@ -1,0 +1,233 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{pdfpages}
+\usepackage{polski}
+\usepackage{multirow}
+\usepackage{gnuplottex}
+\usepackage{csvsimple}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage{subfig}
+\usepackage{float}
+
+% !dane teraz będą trzymane w data/{nazwa}.csv i zczytywane za pomocą csvsimple!
+
+% zmienne
+\newcommand{\constM}{37.23}
+\newcommand{\constG}{9.815}
+\newcommand{\pgfmath}[1]{\pgfmathparse{#1}\pgfmathresult}
+\newcommand{\displayData}[1]{
+    \begin{tabular}{|c|c|c|c|}
+        \hline U[V] & I[A] & m[g] & $I_m$[A] \\\hline
+        \csvreader[
+        late after line= \\\hline
+        ]{#1}{1=\Im,2=\m,3=\U, 4=\Iout}
+        {\U & \Im & \m & \Iout}
+    \end{tabular}
+}
+\newcommand{\elabData}[1]{
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline U[V] & I[A] & m[g] & $I_m$[A] & F[N] \\\hline
+        \csvreader[
+        late after line= \\\hline
+        ]{#1}{1=\I,2=\m,3=\U, 4=\Im}
+        {\U & \I & \m & \Im & \pgfmath{(\m - \constM)*\constG/1000} } % kg jest w układzie SI
+    \end{tabular}
+}
+
+\begin{document}
+
+% strona tytułowa sprawozdania
+\includepdf{str_tyt.pdf}
+
+% test używania tablety z pliku csv
+
+\section{Wstęp}
+% cel ćwiczenia: Celem ćwiczenia jest pomiar siły elektrodynamicznej (przy pomocy wagi) działającej na odcinek przewodnika z prądem, który został umieszczony w jednorodnym polu magnetycznym. Badana jest zależność tej siły od natężenia prądu płynącego w przewodniku i od indukcji pola magnetycznego. Na podstawie przeprowadzonych pomiarów wyznaczana jest wartość indukcji pola magnetycznego. Można innymi słowami po prostu cel ćwiczenia napisąć + przebieg ćwiczenia 
+    W laboratorium mierzyliśmy masę przewodnika pod wpływem pola magnetycznego o różnym natężeniu. Umożliwiło nam to obliczenie siły elektrodynamicznej działającej na przewodnik. Następnie mieliśmy wyznaczyć zależność siły działającej na fragment przewodnika względem natężenia prądu płynącego w przewodniku; z otrzymanych danych wartość indukcji magnetycznej w szczelinie elektromagnesu, a na koniec zależność siły działającej na fragment przewodnika względem natężenia prądu płynącego w elektromagnesie.
+
+\section{Wyniki laboratorium}    
+    Dane otrzymane podczas pomiaru na laboratorium.\\
+    \subsection{Zebrane dane}
+    %Zebrane dane do zadania pierwszego
+    \begin{table}[!h]
+        \centering
+        \displayData{Data/E5.1_5V.csv}
+        \displayData{Data/E5.1_10V.csv}
+        \caption{Dane do zadania pierwszego}
+    \end{table}
+    %Zebrane dane do zadania trzeciego
+    \begin{table}[!h]
+        \centering
+        \begin{tabular}{|c|c|c|}
+            \hline U[V] & m[g] & $I_m$[A] \\\hline
+            \csvreader[
+            late after line= \\\hline
+            ]{Data/E5.2.csv}{1=\I,2=\m,3=\Im, 4=\U }
+            {\U & \m & \Im}
+        \end{tabular}
+        \caption{Dane do zadania trzeciego}
+    \end{table}
+    
+    \subsection{Niepewności przyrządów pomiarowych}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|c|c|c|c|}
+            \hline $\Delta m_0$[g] & $\Delta m$[g] & $\Delta I[A] $ & $\Delta I_m$[A] \\\hline
+            0.01 & 0.01 & 0.075 & 0.015 \\\hline
+        \end{tabular}
+        \caption{Przedstawienie niepewności przyrządów pomiarowych}
+        \label{tab:my_label}
+    \end{table}
+    Wykonując pomiary do ćwiczenia E5.3 amperomierz dla I był ustawiony tak jak przy pierwszych
+pomiarach, natomiast dla $I_m$ ustawiony był zakres 1A przy klasie 1,5\%.
+    
+    \pagebreak
+\section{Opracowanie wyników}
+    Rozwiązanie zadań postawionych na laboratorium
+    \subsection{E5.1}
+    % Treść zadanie
+    \textbf{Treść zadania: } Przy stałej wartości indukcji pola magnetycznego (w naszym przypadku dla napięcia 5 V oraz 10 V) wyznaczyć zależność siły działającej na fragment przewodnika F od natężenia prądu płynącego w tym przewodniku I. Sporządzić wykres zależności F = f(I).
+    \\
+    Masa ramki $m_0$ = 37.23 g \\
+    Siła F obliczana ze wzoru (gdzie przyjmujemy wartość g = 9.815 $\frac{m}{s^2}$): \[ F = |m - m_0| \cdot g \]
+
+    \begin{figure}[ht!]
+        \centering
+        \begin{gnuplot}[terminal=epslatex]
+            set title 'Graficzne przedstawienie F = f(I) dla napięcia U = 5 V
+            m_0 = 37.23
+            file = 'Data/E5.1_5V.csv'
+            load 'Gnuplot/E5.1.gp'
+        \end{gnuplot}
+        \elabData{Data/E5.1_5V.csv}
+        \label{fig:dane dla U = 5V}
+    \end{figure}
+    Tabela przedstawia zależność między siłą działającą na fragment przewodnika (F), a natężeniem prądu w przewodniku (I). Na wykresie widoczna jest również prosta uzyskana poprzez regresję liniową, która potrzebna jest do następnego zadania.
+    
+    \begin{figure}[ht!]
+        \centering
+        \begin{gnuplot}[terminal=epslatex]
+            set title 'Graficzne przedstawienie F = f(I) dla napięcia U = 10 V
+            m_0 = 37.23
+            file = 'Data/E5.1_10V.csv'
+            load 'Gnuplot/E5.1.gp'
+        \end{gnuplot}
+        \elabData{Data/E5.1_10V.csv}
+        \label{fig:dane dla U = 10V}
+    \end{figure}
+    Podobnie jak w pierwszym przypadku na wykresie znajduje się prosta uzyskana poprzez regresję liniową, a tabela ukazuje oczekiwaną zależność.
+    \pagebreak
+    
+    \subsection{E5.2}
+    % Treść zadania
+    \textbf{Treść zadania: } Wykorzystując zależność z zadania E5.1 wyznaczyć metodą graficzną i/lub metodą najmniejszych kwadratów wartość indukcji magnetycznej w szczelinie elektromagnesu. \\
+
+    Korzystając z wykresu z zadania E5.1, ze wzoru $F = B I l$ oraz z informacji zawartej w uzupełnieniu, że długość fragmentu przewodnika, na który działa mierzona siła F wynosi L = 0.1 m możemy obliczyć wartość wektora indukcji B, która będzie wynosiła 
+    \[ B = \frac{a}{l} =  \frac{0.001145}{0.1} = 0.01145 \: T \]  
+    dla natężenia 5 V oraz 
+    \[ B = \frac{a}{l} =  \frac{0.001091}{0.1} = 0.01091 \: T\]
+    dla natężenia 10 V.
+    \pagebreak
+    
+    \subsection{E5.3}
+    \textbf{Treść zadania: } Przy stałym natężeniu prądu płynącym w pętli przewodnika (w naszym przypadku I = 4 A) wyznaczyć zależność siły F działającej na fragment tego przewodnika od natężenia prądu płynącego w uzwojeniu elektromagnesu Im. Określić zależność indukcji magnetycznej elektromagnesu B od Im. Sporządzić wykres zależności B = f($I_m$). \\
+    
+    Ponownie korzystamy ze wzoru $F = B I l$ przekształcając go aby uzyskać wartość wektora indukcji $B = \frac{F}{I\cdot l}$ 
+    \begin{table}[!ht]
+        \centering
+        \centering
+        \begin{tabular}{|c|c|c|c|c|}
+            \hline U[V] & m[g] & $I_m$[A] & F[N] & B[T] \\\hline
+            \csvreader[
+            late after line= \\\hline
+            ]{Data/E5.2.csv}{1=\I,2=\m,3=\Im, 4=\U }
+            {\U & \m & \Im & \pgfmath{(\m - \constM)*\constG/1000} & \pgfmath{((\m - \constM)*\constG)/(\I * 0.1 * 1000)}}
+            \multicolumn{3}{|c|}{Średnia} & 0.0376 & 0.0939\\\hline
+        \end{tabular}
+        \caption{Wyniki zadania E5.3}
+    \end{table}
+    
+    Tabela przedstawia zależność między siłą działającą na fragment przewodnika (F), a natężeniem prądu w elektromagnesie ($I_m$).
+    
+    \begin{figure}[ht!]
+        \centering
+        \begin{gnuplot}[terminal=epslatex]
+            set title 'Graficzne przedstawienie B = f($I_m$)
+            m_0 = 37.23
+            file = 'Data/E5.2.csv'
+            load 'Gnuplot/E5.2.gp'
+        \end{gnuplot}
+        \label{fig:wykres do zadania drugiego}
+    \end{figure}
+    % W tym przypadku I_m jest naszym I_out
+    funkcja f($I_m$) będzie mieć więc postać : 0.207728*$I_m$ + 0.001845
+    \subsection{Obliczanie niepewności pomiarów}
+        Niepewności złożone obliczane są za pomocą wzoru 
+        \[ S_y = \sqrt{ \sum_{i = 1}^{L} (\frac{\partial y}{\partial x_1} \cdot S_{x_l} )^2 } \]
+
+        Obliczanie niepewności F
+        \[ \Delta F = \sqrt{(\frac{\partial F}{\partial m}\Delta m )^2 + (\frac{\partial F}{\partial m_0}\Delta m_0 )^2} \]
+    Dla $F = |m - m_0| * g$, $\Delta m $ = 0.01 g i $\Delta m_0$ = 0.01 g otrzymujemy
+        %obliczanie
+        \[ \Delta F = \sqrt{ (9.815\:\frac{m}{s^2}  * 0.00001\:kg)^2 + (-9.815\:\frac{m}{s^2} * 0.00001\:kg)^2 } \]
+        \[= \sqrt{(\pgfmath{9.815*0.00001}\:N)^2 + (\pgfmath{-9.815*0.00001}\:N)^2} \approx 0.00020 \:N \]
+
+        Obliczanie niepewności B
+        \[ \Delta B = \sqrt{(\frac{\partial B}{\partial F} \Delta F)^2 + (\frac{\partial B}{\partial I} \Delta I)^2} \]
+        %obliczanie
+        
+        \[ \Delta B = \sqrt{(\frac{1}{I \cdot L} \Delta F)^2 + (-\frac{F}{I^2 \cdot L} \Delta I)^2} = \sqrt{(\frac{1}{4*0.1}* 0.000198 N)^2 + (-\frac{0.0376}{16*0.1}*0.1)^2} \]
+        \[= \sqrt{(0.000495)^2 + (0.00235)^2} \approx 0.00240 \: T\]
+        
+    \pagebreak
+\section{Wyniki} % ostateczne z niepewnościami i liczbami znaczącymi
+    \subsection{E5.1} 
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{|c|c|}
+                \hline I[A] & F[N] \\\hline
+                \csvreader[
+                late after line= \\\hline
+                ]{Data/E5.1_5V_wyniki.csv}{1=\I,2=\F}
+                {\I & \F}
+            \end{tabular}
+            \caption{Wyniki dla 5 V}
+            \label{tab:wyniki dla 5 V}
+        \end{table}
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{|c|c|}
+                \hline I[A] & F[N] \\\hline
+                \csvreader[
+                late after line= \\\hline
+                ]{Data/E5.1_10V_wyniki.csv}{1=\I,2=\F}
+                {\I & \F}
+            \end{tabular}
+            \caption{Wyniki dla 10 V}
+            \label{tab:wyniki dla 10 V}
+        \end{table}
+    \subsection{E5.2}
+        Dla I = 5 V \[ B = (0.01145 \pm 0.00240) \: T \]
+        Dla I = 10 V \[ B = (0.01091 \pm 0.00240) \: T \]
+    \subsection{E5.3}
+        \begin{table}[H]
+            \centering
+            \begin{tabular}{|c|c|c|}
+                \hline $I_m$[A] & F[N] & B[T]\\\hline
+                \csvreader[
+                late after line= \\\hline
+                ]{Data/E5.3_wyniki.csv}{1=\Im,2=\F,3=\B}
+                {\Im & \F & \B}
+            \end{tabular}
+            \caption{Wymagane zależności}
+            \label{tab:wyniki do E5.3}
+        \end{table}
+\section{Źródła}
+    Sprawozdanie pisane na platformie Overleaf. \\
+    Grafy rysowane przy użyciu gnuplot. \\
+    Regresja liniowa policzona za pomocą komendy fit interpretera gnuplot, która w łatwy sposób pozwala na dopasowanie wybranej funkcji do posiadanych danych. \\
+    Informacje brane z uzupełnienia do zadań. Wzory nieznajdujące się w instrukcji do ćwiczenia brane z Wikipedii. \\
+    Cały kod źródłowy znajduje się na: \\github.com/GramNaTosterze/PG\_FIZ\_Lab3\_Spr \\oraz bezpośrednio na platformie overleaf pod adresem:\\ https://www.overleaf.com/read/pxprvzqxspfc
+\end{document}
